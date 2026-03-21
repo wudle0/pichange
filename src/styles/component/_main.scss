@@ -562,4 +562,84 @@
       @include font-style(14, $text-primary, 600);
     }
   }
+
+  &-mobile-save {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    @include flex-center;
+    padding: 20px;
+    pointer-events: auto;
+
+    &-backdrop {
+      position: absolute;
+      inset: 0;
+      border: none;
+      padding: 0;
+      margin: 0;
+      background: rgba(0, 0, 0, 0.75);
+      cursor: pointer;
+    }
+
+    &-panel {
+      position: relative;
+      z-index: 1;
+      max-width: 100%;
+      max-height: min(90vh, 640px);
+      width: min(360px, 100%);
+      border-radius: $radius-lg;
+      background-color: $bg-secondary;
+      border: 1.5px solid $border;
+      padding: 20px 16px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    &-text {
+      @include font-style(13, $text-secondary, 500);
+      text-align: center;
+      line-height: 1.5;
+      margin: 0;
+
+      strong {
+        color: $accent;
+      }
+    }
+
+    &-img-wrap {
+      border-radius: $radius-md;
+      overflow: hidden;
+      background-color: $bg-card;
+      max-height: 55vh;
+      @include flex-center;
+    }
+
+    &-img {
+      max-width: 100%;
+      max-height: min(52vh, 480px);
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      vertical-align: middle;
+      -webkit-touch-callout: default;
+      user-select: none;
+    }
+
+    &-close {
+      width: 100%;
+      height: 44px;
+      border-radius: $radius-md;
+      border: 1.5px solid $border;
+      background-color: $bg-card;
+      @include font-style(14, $text-primary, 600);
+      cursor: pointer;
+      @include transition;
+
+      &:active {
+        background-color: $bg-secondary;
+      }
+    }
+  }
 }
