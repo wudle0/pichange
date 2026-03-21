@@ -1,0 +1,48 @@
+$bg-primary: #0c0c0e;
+$bg-secondary: #16161a;
+$bg-card: #1e1e24;
+$bg-hover: #26262e;
+
+$accent: #7c6cf0;
+$accent-hover: #6b5ce0;
+$accent-dim: rgba(124, 108, 240, 0.12);
+
+$text-primary: #f0f0f2;
+$text-secondary: #8a8a9a;
+$text-dim: #555566;
+
+$border: #2a2a35;
+$border-light: #3a3a48;
+
+$danger: #f05c5c;
+$success: #5cf0a0;
+
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+
+@mixin font-style($size, $color: null, $weight: 400) {
+  font-size: #{$size}px;
+  line-height: #{$size + 4}px;
+  font-weight: $weight;
+  @if $color {
+    color: $color;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin transition($props: all, $duration: 0.2s) {
+  transition: $props $duration ease;
+}
