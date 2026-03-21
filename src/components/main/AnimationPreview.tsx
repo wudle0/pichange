@@ -1,5 +1,9 @@
 import { useMemo } from "react";
+import type { CSSProperties } from "react";
 import type { AnimationEffect, ImageCount, BgColor } from "@/types";
+
+/** CSS 변수 --duration (csstype의 CSSProperties에 없음) */
+type PreviewFrameStyle = CSSProperties & { "--duration": string };
 import { getGridInfo, getRainDropLayout } from "@/utils/gifGenerator";
 
 const NINJA_DATA = [
@@ -54,12 +58,10 @@ function AnimationPreview({
 
 	const rainDrops = useMemo(() => getRainDropLayout(), []);
 
-	const style = {
+	const style: PreviewFrameStyle = {
 		"--duration": `${duration}s`,
-		...(bgColor === "transparent"
-			? { backgroundColor: "transparent" as const }
-			: { backgroundColor: bgColor }),
-	} as React.CSSProperties;
+		backgroundColor: bgColor === "transparent" ? "transparent" : bgColor,
+	};
 
 	const gridStyle = useMemo(() => {
 		if (!grid) return {};
