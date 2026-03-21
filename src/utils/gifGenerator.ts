@@ -2,7 +2,7 @@ import GIF from "gif.js";
 import type { AnimationEffect, ImageCount, GridInfo, BgColor } from "@/types";
 
 const OUTPUT_WIDTH = 540;
-const OUTPUT_HEIGHT = 1200;
+const OUTPUT_HEIGHT = 540;
 const PREVIEW_WIDTH = 200;
 const SCALE = OUTPUT_WIDTH / PREVIEW_WIDTH;
 const FPS = 15;
@@ -25,29 +25,24 @@ export function getGridInfo(count: number): GridInfo {
 	return { cols: 4, rows: 4 };
 }
 
-function coverDraw(
+/** 타일 정사각형 안에 이미지 전체가 들어가도록 맞춤(여백 허용, 비율 유지) */
+function containDraw(
 	ctx: CanvasRenderingContext2D,
 	img: HTMLImageElement,
 	x: number,
 	y: number,
 	s: number,
 ) {
-	ctx.save();
-	ctx.beginPath();
-	ctx.rect(x, y, s, s);
-	ctx.clip();
-
 	const imgRatio = img.width / img.height;
 	let dw: number, dh: number;
 	if (imgRatio > 1) {
-		dh = s;
-		dw = s * imgRatio;
-	} else {
 		dw = s;
 		dh = s / imgRatio;
+	} else {
+		dh = s;
+		dw = s * imgRatio;
 	}
 	ctx.drawImage(img, x + (s - dw) / 2, y + (s - dh) / 2, dw, dh);
-	ctx.restore();
 }
 
 function drawGrid(
@@ -72,7 +67,7 @@ function drawGrid(
 		const row = Math.floor(i / grid.cols);
 		const x = baseX + col * (s + g);
 		const y = baseY + row * (s + g);
-		coverDraw(ctx, img, x, y, s);
+		containDraw(ctx, img, x, y, s);
 	}
 }
 
@@ -94,7 +89,7 @@ function drawTiles(
 		for (let c = -1; c < cols; c++) {
 			const x = c * step + offsetX;
 			const y = r * step + offsetY;
-			coverDraw(ctx, img, x, y, s);
+			containDraw(ctx, img, x, y, s);
 		}
 	}
 }
@@ -171,7 +166,7 @@ function drawFrameRain(fc: FrameCtx) {
 		const x = xPct * maxX;
 		const t = (progress + phase) % 1;
 		const y = -s + t * (h + s);
-		coverDraw(ctx, img, x, y, s);
+		containDraw(ctx, img, x, y, s);
 	}
 }
 
@@ -197,11 +192,11 @@ function drawFrameRotate(fc: FrameCtx) {
 				const imgRatio = img.width / img.height;
 				let dw: number, dh: number;
 				if (imgRatio > 1) {
-					dh = s;
-					dw = s * imgRatio;
-				} else {
 					dw = s;
 					dh = s / imgRatio;
+				} else {
+					dh = s;
+					dw = s * imgRatio;
 				}
 				ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
 				ctx.restore();
@@ -228,11 +223,11 @@ function drawFrameRotate(fc: FrameCtx) {
 			const imgRatio = img.width / img.height;
 			let dw: number, dh: number;
 			if (imgRatio > 1) {
-				dh = s;
-				dw = s * imgRatio;
-			} else {
 				dw = s;
 				dh = s / imgRatio;
+			} else {
+				dh = s;
+				dw = s * imgRatio;
 			}
 			ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
 			ctx.restore();
@@ -279,11 +274,11 @@ function drawUnclipped(
 	const imgRatio = img.width / img.height;
 	let dw: number, dh: number;
 	if (imgRatio > 1) {
-		dh = s;
-		dw = s * imgRatio;
-	} else {
 		dw = s;
 		dh = s / imgRatio;
+	} else {
+		dh = s;
+		dw = s * imgRatio;
 	}
 	if (flip) {
 		ctx.save();
