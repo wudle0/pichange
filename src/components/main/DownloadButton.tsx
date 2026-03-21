@@ -1,6 +1,14 @@
 import { useCallback, useState } from "react";
 import type { AnimationEffect, ImageCount, BgColor } from "@/types";
 import { generateGif } from "@/utils/gifGenerator";
+import {
+	buildAndroidExternalOpenHref,
+	getPageUrlToOpen,
+	IN_APP_DATA_CANNOT_TRANSFER,
+	isAndroidUserAgent,
+	isInAppBrowser,
+	isMobileDevice,
+} from "@/utils/inAppBrowser";
 
 interface DownloadButtonProps {
 	image: string | null;
@@ -10,62 +18,6 @@ interface DownloadButtonProps {
 	size: number;
 	gap: number;
 	bgColor: BgColor;
-}
-
-function isMobileDevice(): boolean {
-	if (typeof navigator === "undefined") return false;
-	const ua = navigator.userAgent;
-	if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
-	const uaData = (navigator as Navigator & { userAgentData?: { mobile?: boolean } }).userAgentData;
-	return uaData?.mobile === true;
-}
-
-/**
- * 카카오톡·인스타·페이스북 등 앱 내장 브라우저(WebView).
- * 여기서는 blob 다운로드/공유가 자주 막히므로 기본 브라우저로 유도한다.
- */
-function isInAppBrowser(): boolean {
-	if (typeof navigator === "undefined") return false;
-	const ua = navigator.userAgent;
-
-	if (/KAKAOTALK|KAKAO/i.test(ua)) return true;
-	if (/Instagram/i.test(ua)) return true;
-	if (/FBAN|FBAV|FBIOS/i.test(ua)) return true;
-	if (/Line\//i.test(ua)) return true;
-	if (/MicroMessenger/i.test(ua)) return true;
-	// Android System WebView (앱 임베드; 단독 Chrome과 구분 어려울 때 보조)
-	if (/; wv\)/i.test(ua)) return true;
-
-	return false;
-}
-
-function getPageUrlToOpen(): string {
-	if (typeof window === "undefined") return "";
-	return window.location.href.split("#")[0];
-}
-
-function isAndroidUserAgent(ua: string): boolean {
-	return /Android/i.test(ua);
-}
-
-/** 삼성 인터넷(대다수 국내 안드로이드). 미설치 시 browser_fallback으로 일반 https(기본 브라우저) 열림 */
-const SAMSUNG_INTERNET_PACKAGE = "com.sec.android.app.sbrowser";
-
-/**
- * 카카오 인앱 등에서 `target=_blank`는 또 인앱으로 뜨는 경우가 많아,
- * Android는 intent로 외부 앱(삼성 인터넷 우선)을 지정한다.
- */
-function buildAndroidExternalOpenHref(pageUrl: string): string {
-	try {
-		const u = new URL(pageUrl);
-		if (u.protocol !== "http:" && u.protocol !== "https:") return pageUrl;
-		const scheme = u.protocol.replace(":", "");
-		const pathPart = `${u.host}${u.pathname}${u.search}${u.hash}`;
-		const fallback = encodeURIComponent(pageUrl);
-		return `intent://${pathPart}#Intent;scheme=${scheme};action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=${SAMSUNG_INTERNET_PACKAGE};S.browser_fallback_url=${fallback};end`;
-	} catch {
-		return pageUrl;
-	}
 }
 
 function DownloadButton({
@@ -199,20 +151,19 @@ function DownloadButton({
 							<strong>파일 다운로드가 막히는</strong> 경우가 많습니다.
 						</p>
 						<p className="download-button-mobile-save-text-secondary">
+							{IN_APP_DATA_CANNOT_TRANSFER} 밖에서 열면 <strong>GIF 다운로드를 다시</strong> 눌러 새로 만들어야
+							해요.
+							<br />
+							<br />
 							{android ? (
 								<>
-									① 아래 <strong>「삼성 인터넷에서 열기」</strong>를 누르면{" "}
-									<strong>삼성 인터넷</strong>으로 이 페이지가 열립니다. (앱이 없으면{" "}
-									<strong>기본 브라우저</strong>로 열릴 수 있어요.)
-									<br />② 열린 브라우저에서 <strong>GIF 다운로드</strong>를 <strong>한 번 더</strong> 눌러
-									주세요. (방금 만든 GIF는 이 창에만 있어서, 밖에서는 다시 생성됩니다.)
+									① <strong>「삼성 인터넷에서 열기」</strong> → (없으면 기본 브라우저)
+									<br />② 열린 브라우저에서 <strong>GIF 다운로드</strong>를 다시 실행하세요.
 								</>
 							) : (
 								<>
-									① 아래 <strong>「Safari / Chrome에서 열기」</strong>를 눌러{" "}
-									<strong>기본 브라우저</strong>로 이 페이지를 엽니다.
-									<br />② 열린 브라우저에서 <strong>GIF 다운로드</strong>를 <strong>한 번 더</strong> 눌러
-									주세요. (방금 만든 GIF는 이 창에만 있어서, 기본 브라우저에서는 다시 생성됩니다.)
+									① <strong>「Safari / Chrome에서 열기」</strong>
+									<br />② 열린 브라우저에서 <strong>GIF 다운로드</strong>를 다시 실행하세요.
 								</>
 							)}
 						</p>

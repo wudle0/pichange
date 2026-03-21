@@ -8,6 +8,7 @@ import DurationInput from "@/components/main/DurationInput";
 import SizeInput from "@/components/main/SizeInput";
 import GapInput from "@/components/main/GapInput";
 import AnimationPreview from "@/components/main/AnimationPreview";
+import InAppBrowserEntryNotice from "@/components/InAppBrowserEntryNotice";
 import DownloadButton from "@/components/main/DownloadButton";
 
 function MainPage() {
@@ -30,6 +31,8 @@ function MainPage() {
 
 	return (
 		<section className="main-page">
+			<InAppBrowserEntryNotice />
+
 			<div className="main-page-header">
 				<h1>PICHANGE</h1>
 
