@@ -44,6 +44,30 @@ function getPageUrlToOpen(): string {
 	return window.location.href.split("#")[0];
 }
 
+function isAndroidUserAgent(ua: string): boolean {
+	return /Android/i.test(ua);
+}
+
+/** 삼성 인터넷(대다수 국내 안드로이드). 미설치 시 browser_fallback으로 일반 https(기본 브라우저) 열림 */
+const SAMSUNG_INTERNET_PACKAGE = "com.sec.android.app.sbrowser";
+
+/**
+ * 카카오 인앱 등에서 `target=_blank`는 또 인앱으로 뜨는 경우가 많아,
+ * Android는 intent로 외부 앱(삼성 인터넷 우선)을 지정한다.
+ */
+function buildAndroidExternalOpenHref(pageUrl: string): string {
+	try {
+		const u = new URL(pageUrl);
+		if (u.protocol !== "http:" && u.protocol !== "https:") return pageUrl;
+		const scheme = u.protocol.replace(":", "");
+		const pathPart = `${u.host}${u.pathname}${u.search}${u.hash}`;
+		const fallback = encodeURIComponent(pageUrl);
+		return `intent://${pathPart}#Intent;scheme=${scheme};action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=${SAMSUNG_INTERNET_PACKAGE};S.browser_fallback_url=${fallback};end`;
+	} catch {
+		return pageUrl;
+	}
+}
+
 function DownloadButton({
 	image,
 	effect,
@@ -59,6 +83,9 @@ function DownloadButton({
 	const isGenerating = progress !== null;
 
 	const pageUrl = typeof window !== "undefined" ? getPageUrlToOpen() : "";
+	const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+	const android = isAndroidUserAgent(ua);
+	const externalOpenHref = android && pageUrl ? buildAndroidExternalOpenHref(pageUrl) : pageUrl;
 
 	const closeInAppModal = useCallback(() => setInAppModalOpen(false), []);
 
@@ -68,7 +95,9 @@ function DownloadButton({
 		try {
 			await navigator.clipboard.writeText(url);
 			window.alert(
-				"페이지 주소를 복사했습니다.\nSafari·Chrome 주소창에 붙여넣은 뒤 GIF 다운로드를 다시 눌러 주세요.",
+				android
+					? "페이지 주소를 복사했습니다.\n삼성 인터넷·Chrome 등 주소창에 붙여넣은 뒤 GIF 다운로드를 다시 눌러 주세요."
+					: "페이지 주소를 복사했습니다.\nSafari·Chrome 주소창에 붙여넣은 뒤 GIF 다운로드를 다시 눌러 주세요.",
 			);
 		} catch {
 			window.prompt("아래 주소를 복사해 브라우저에서 여세요:", url);
@@ -170,18 +199,29 @@ function DownloadButton({
 							<strong>파일 다운로드가 막히는</strong> 경우가 많습니다.
 						</p>
 						<p className="download-button-mobile-save-text-secondary">
-							① 아래 <strong>「Safari / Chrome에서 열기」</strong>를 눌러{" "}
-							<strong>기본 브라우저</strong>로 이 페이지를 엽니다.
-							<br />② 열린 브라우저에서 <strong>GIF 다운로드</strong>를 <strong>한 번 더</strong>{" "}
-							눌러 주세요. (방금 만든 GIF는 이 창에만 있어서, 기본 브라우저에서는 다시 생성됩니다.)
+							{android ? (
+								<>
+									① 아래 <strong>「삼성 인터넷에서 열기」</strong>를 누르면{" "}
+									<strong>삼성 인터넷</strong>으로 이 페이지가 열립니다. (앱이 없으면{" "}
+									<strong>기본 브라우저</strong>로 열릴 수 있어요.)
+									<br />② 열린 브라우저에서 <strong>GIF 다운로드</strong>를 <strong>한 번 더</strong> 눌러
+									주세요. (방금 만든 GIF는 이 창에만 있어서, 밖에서는 다시 생성됩니다.)
+								</>
+							) : (
+								<>
+									① 아래 <strong>「Safari / Chrome에서 열기」</strong>를 눌러{" "}
+									<strong>기본 브라우저</strong>로 이 페이지를 엽니다.
+									<br />② 열린 브라우저에서 <strong>GIF 다운로드</strong>를 <strong>한 번 더</strong> 눌러
+									주세요. (방금 만든 GIF는 이 창에만 있어서, 기본 브라우저에서는 다시 생성됩니다.)
+								</>
+							)}
 						</p>
 						<div className="download-button-mobile-save-actions">
 							<a
-								href={pageUrl || "about:blank"}
-								target="_blank"
-								rel="noopener noreferrer"
+								href={externalOpenHref || "about:blank"}
+								{...(android ? {} : { target: "_blank", rel: "noopener noreferrer" })}
 								className="download-button-mobile-save-open">
-								Safari / Chrome에서 열기
+								{android ? "삼성 인터넷에서 열기" : "Safari / Chrome에서 열기"}
 							</a>
 							<button
 								type="button"
