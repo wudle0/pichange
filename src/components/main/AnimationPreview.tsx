@@ -19,11 +19,11 @@ const NINJA_DATA = [
 	{ fromLeft: false, yPct: 48, delayPct: 0.9 },
 ];
 
-/** 미리보기 바깥 프레임(정사각형) */
-const FRAME_SIZE = 200;
+/** 세로 긴 배경화면 미리보기(9:20) */
+const FRAME_WIDTH = 200;
 const FRAME_PADDING = 20;
-/** 패딩 안쪽 콘텐츠 영역(정사각형) — 타일·비 계산에 사용 */
-const CONTENT_SIZE = FRAME_SIZE - FRAME_PADDING * 2;
+const CONTENT_WIDTH = FRAME_WIDTH - FRAME_PADDING * 2;
+const FRAME_HEIGHT = Math.round((FRAME_WIDTH * 20) / 9);
 
 interface AnimationPreviewProps {
 	image: string | null;
@@ -49,11 +49,11 @@ function AnimationPreview({
 	const step = size + gap;
 
 	const infiniteCols = useMemo(
-		() => Math.max(1, Math.ceil((CONTENT_SIZE + gap) / step)),
+		() => Math.max(1, Math.ceil((CONTENT_WIDTH + gap) / step)),
 		[step, gap],
 	);
 	const infiniteRows = useMemo(
-		() => Math.max(1, Math.ceil((CONTENT_SIZE + gap) / step)),
+		() => Math.max(1, Math.ceil((FRAME_HEIGHT + gap) / step)),
 		[step, gap],
 	);
 
@@ -114,8 +114,8 @@ function AnimationPreview({
 	}
 
 	function renderRainRandom() {
-		const maxX = Math.max(0, CONTENT_SIZE - size);
-		const rainEnd = CONTENT_SIZE + size;
+		const maxX = Math.max(0, CONTENT_WIDTH - size);
+		const rainEnd = FRAME_HEIGHT + size;
 		return (
 			<div className="animation-preview-rain-random">
 				{rainDrops.map((d, i) => (
@@ -156,8 +156,8 @@ function AnimationPreview({
 									top: `${n.yPct}%`,
 									width: size,
 									height: size,
-									"--ninja-from": `${n.fromLeft ? -size : FRAME_SIZE}px`,
-									"--ninja-to": `${n.fromLeft ? FRAME_SIZE : -size}px`,
+									"--ninja-from": `${n.fromLeft ? -size : FRAME_WIDTH}px`,
+									"--ninja-to": `${n.fromLeft ? FRAME_WIDTH : -size}px`,
 									"--trail-opacity": opacity,
 									animationDelay: `${-(duration * n.delayPct) + trailGap * ti}s`,
 									animationDuration: `${duration}s`,

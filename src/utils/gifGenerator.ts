@@ -2,7 +2,7 @@ import GIF from "gif.js";
 import type { AnimationEffect, ImageCount, GridInfo, BgColor } from "@/types";
 
 const OUTPUT_WIDTH = 540;
-const OUTPUT_HEIGHT = 540;
+const OUTPUT_HEIGHT = 1200;
 const PREVIEW_WIDTH = 200;
 const SCALE = OUTPUT_WIDTH / PREVIEW_WIDTH;
 const FPS = 15;
